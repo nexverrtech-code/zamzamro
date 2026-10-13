@@ -45,6 +45,4 @@ ${pages
 </urlset>
 `;
 await writeFile(new URL('sitemap.xml', dist), sitemap);
-// SPA fallback for Netlify-style hosts.
-await writeFile(new URL('_redirects', dist), '/*  /index.html  200\n');
 console.log(`SEO: ${pages.length} route pages + sitemap.xml written.`);

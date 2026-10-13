@@ -1,0 +1,13 @@
+{
+  // Static-assets Worker for the Zam Zam website (Cloudflare Workers).
+  // Every route has its own prerendered index.html in dist/; unknown paths fall back to the SPA shell.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "zamzamro",
+  "compatibility_date": "2026-10-06",
+  "observability": { "enabled": true },
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "single-page-application"
+  }
+}
