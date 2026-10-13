@@ -1,0 +1,10 @@
+{
+  "name": "Zam Zam Pure Water System",
+  "short_name": "Zam Zam",
+  "description": "RO water purifier sales, service & installation in Erode.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF9F6",
+  "theme_color": "#202657",
+  "icons": [{ "src": "/images/emblem-navy.png", "sizes": "280x390", "type": "image/png" }]
+}
