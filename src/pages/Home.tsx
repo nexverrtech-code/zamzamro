@@ -61,7 +61,7 @@ function Stage({ progress, at, children }: { progress: MotionValue<number>; at: 
   const y = useTransform(progress, at, [at[0] === 0 ? 0 : 24, 0, 0, at[3] >= 1 ? 0 : -24]);
   const pointerEvents = useTransform(opacity, (v) => (v > 0.5 ? 'auto' : 'none'));
   return (
-    <motion.div style={{ opacity, y, pointerEvents }} className="glass absolute inset-x-0 bottom-0 rounded-[22px] p-5 shadow-soft lg:top-1/2 lg:bottom-auto lg:-translate-y-1/2 lg:p-7">
+    <motion.div style={{ opacity, y, pointerEvents }} className="glass absolute inset-x-0 bottom-0 rounded-[22px] p-4 shadow-soft sm:p-5 lg:top-1/2 lg:bottom-auto lg:-translate-y-1/2 lg:p-7">
       {children}
     </motion.div>
   );
@@ -92,25 +92,25 @@ function Hero({ ready }: { ready: boolean }) {
   });
 
   return (
-    <section ref={ref} className="relative h-[340vh]" aria-labelledby="hero-title">
+    <section ref={ref} className="relative h-[240vh] sm:h-[340vh]" aria-labelledby="hero-title">
       <div className="sticky top-0 h-[100svh] overflow-hidden bg-[#1f7aa3]">
         <Suspense fallback={<div className="absolute inset-0 water-bg" />}>
           <HeroPurifier />
         </Suspense>
 
         <div className="pointer-events-none relative container-royal h-full">
-          <div className="absolute inset-x-4 bottom-[5.5rem] min-h-[200px] sm:inset-x-6 lg:inset-x-8 lg:top-0 lg:bottom-0 lg:w-[40%]">
+          <div className="absolute inset-x-3 bottom-[5.25rem] min-h-[170px] sm:inset-x-6 sm:min-h-[200px] lg:inset-x-8 lg:top-0 lg:bottom-0 lg:w-[40%]">
             <Stage progress={scrollYProgress} at={[0, 0.14, 0.17, 0.21]}>
               <motion.p className="eyebrow" {...fade(0.1)}>Erode’s royal standard in pure water</motion.p>
               <h1 id="hero-title" className="mt-3">
-                <motion.span className="block text-[2.4rem] leading-[1] font-medium sm:text-5xl lg:text-[3.6rem]" {...fade(0.2)}>
+                <motion.span className="block text-[1.95rem] leading-[1] font-medium sm:text-5xl lg:text-[3.6rem]" {...fade(0.2)}>
                   Every drop, <em className="text-gold-shimmer block font-medium">pure forever.</em>
                 </motion.span>
-                <motion.span className="mt-2.5 block font-sans text-[0.95rem] font-normal text-navy/75" {...fade(0.35)}>
+                <motion.span className="mt-2 block font-sans text-[0.82rem] font-normal text-navy/75 sm:mt-2.5 sm:text-[0.95rem]" {...fade(0.35)}>
                   RO Water Purifier Sales, Service &amp; Installation in Erode
                 </motion.span>
               </h1>
-              <motion.div className="mt-4 flex flex-col gap-2 sm:flex-row" {...fade(0.5)}>
+              <motion.div className="mt-3 flex flex-wrap gap-2 sm:mt-4" {...fade(0.5)}>
                 <Link to="/products" className="btn-royal">Explore purifiers <ArrowRight size={16} /></Link>
                 <Link to="/contact#enquiry" className="btn-ghost"><Wrench size={16} /> Book a service</Link>
               </motion.div>
@@ -118,8 +118,8 @@ function Hero({ ready }: { ready: boolean }) {
 
             <Stage progress={scrollYProgress} at={[0.18, 0.22, 0.36, 0.41]}>
               <p className="eyebrow">Inside the machine</p>
-              <h2 className="mt-2.5 text-[1.8rem] leading-tight font-medium sm:text-[2.4rem]">Four stages of <em className="text-gold-shimmer">purity</em></h2>
-              <ol className="mt-4 space-y-1.5">
+              <h2 className="mt-2 text-[1.5rem] leading-tight font-medium sm:mt-2.5 sm:text-[2.4rem]">Four stages of <em className="text-gold-shimmer">purity</em></h2>
+              <ol className="mt-3 space-y-1 sm:mt-4 sm:space-y-1.5">
                 {purifyStages.map((st, i) => {
                   const on = i < lit;
                   return (
@@ -135,9 +135,9 @@ function Hero({ ready }: { ready: boolean }) {
 
             <Stage progress={scrollYProgress} at={[0.38, 0.44, 0.78, 0.84]}>
               <p className="eyebrow">Turn the tap</p>
-              <h2 className="mt-2.5 text-[1.8rem] leading-tight font-medium sm:text-[2.4rem]">Clear, cool, <em className="text-gold-shimmer">pure water</em> — every glass.</h2>
-              <p className="mt-3 max-w-md text-mist">Purifiers from Nile, Clean Water, LX One, Aqua 2090 and Water Pia — chosen for your water source, installed at your door.</p>
-              <ul className="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-navy">
+              <h2 className="mt-2 text-[1.5rem] leading-tight font-medium sm:mt-2.5 sm:text-[2.4rem]">Clear, cool, <em className="text-gold-shimmer">pure water</em> — every glass.</h2>
+              <p className="mt-3 hidden max-w-md text-mist sm:block">Purifiers from Nile, Clean Water, LX One, Aqua 2090 and Water Pia — chosen for your water source, installed at your door.</p>
+              <ul className="mt-3 flex flex-wrap gap-1.5 text-[0.7rem] font-medium text-navy sm:mt-4 sm:gap-2 sm:text-xs">
                 {['Copper · Zinc · Alkaline', 'Up to 2000 ppm TDS', 'Doorstep installation'].map((t) => (
                   <li key={t} className="flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5"><Check size={12} className="text-gold-deep" /> {t}</li>
                 ))}
@@ -146,8 +146,8 @@ function Hero({ ready }: { ready: boolean }) {
 
             <Stage progress={scrollYProgress} at={[0.82, 0.9, 0.98, 1]}>
               <p className="eyebrow">Pure forever</p>
-              <h2 className="mt-2.5 text-[1.8rem] leading-tight font-medium sm:text-[2.4rem]">Ready for your home in <em className="text-gold-shimmer">Erode</em>.</h2>
-              <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
+              <h2 className="mt-2 text-[1.5rem] leading-tight font-medium sm:mt-2.5 sm:text-[2.4rem]">Ready for your home in <em className="text-gold-shimmer">Erode</em>.</h2>
+              <div className="mt-4 flex flex-wrap gap-2">
                 <Link to="/installation" className="btn-royal">Book installation <ArrowRight size={16} /></Link>
                 <a href={whatsappLink('Hello Zam Zam, I would like to know more about your RO purifiers.')} target="_blank" rel="noopener noreferrer" className="btn bg-[#25D366] text-white">
                   <MessageCircle size={16} /> WhatsApp us
@@ -157,7 +157,7 @@ function Hero({ ready }: { ready: boolean }) {
           </div>
         </div>
 
-        <div className="absolute top-24 right-4 z-10 sm:top-28 lg:top-auto lg:right-14 lg:bottom-8">
+        <div className="absolute top-[5.4rem] left-1/2 z-10 -translate-x-1/2 sm:top-28 sm:right-4 sm:left-auto sm:translate-x-0 lg:top-auto lg:right-14 lg:bottom-8">
           <ShadePicker />
         </div>
 

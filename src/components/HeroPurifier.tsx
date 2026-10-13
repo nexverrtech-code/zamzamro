@@ -31,7 +31,12 @@ const OUTLET = new THREE.Vector3(TAP_X, -0.415, 0.43);
 const TRAY_Y = -0.685;
 const GLASS_H = 0.2;
 const GLASS_MAX = 0.16;
-const POSE = { wide: { scale: 1.02, y: 0.08 }, portrait: { scale: 0.66, y: 0.95 } };
+const POSE = { wide: { scale: 1.02, y: 0.08 } };
+/** Phones: fit the whole machine + podium into the space above the text panel. */
+const portraitPose = (w: number, h: number) => {
+  const scale = Math.min(0.26 * h, 0.38 * w);
+  return { scale, y: 0.36 + 0.1 * h + 0.09 * scale };
+};
 
 function useMaterials() {
   return useMemo(
@@ -229,7 +234,7 @@ function Purifier({ low }: { low: boolean }) {
     m.shell.color.lerp(target, 1 - Math.exp(-dt * 5));
 
     // Pose
-    const pose = portrait ? POSE.portrait : POSE.wide;
+    const pose = portrait ? portraitPose(viewport.width, viewport.height) : POSE.wide;
     const g = group.current;
     const turn = ease(range(p, 0, 0.22));
     g.rotation.y = THREE.MathUtils.damp(g.rotation.y, THREE.MathUtils.lerp(-0.62, 0.3, turn) + pointer.x * 0.12, 4, dt);
@@ -239,16 +244,22 @@ function Purifier({ low }: { low: boolean }) {
     g.position.set(portrait ? 0 : Math.min(viewport.width * 0.24, 2.05), pose.y + Math.sin(t * 0.9) * 0.022, 0);
     g.rotation.z = Math.sin(t * 0.6) * 0.012;
 
-    // Camera eases toward the glass while water pours
+    // Camera eases toward the glass while water pours. On phones it only drifts in a touch,
+    // so the whole machine, tap and glass stay in view for the entire animation.
     const zoom = ease(range(p, 0.28, 0.6)) * (1 - range(p, 0.9, 1) * 0.5);
-    const glassY = pose.y + (TRAY_Y + 0.12) * pose.scale;
-    state.camera.position.z = THREE.MathUtils.lerp(6.4, portrait ? 5.4 : 4.6, zoom);
-    state.camera.position.y = THREE.MathUtils.lerp(0.35, glassY + 0.4, zoom);
-    state.camera.lookAt(
-      THREE.MathUtils.lerp(g.position.x * 0.6, portrait ? g.position.x + TAP_X * pose.scale : g.position.x * 0.5 + TAP_X * pose.scale, zoom),
-      THREE.MathUtils.lerp(portrait ? 0.35 : 0, portrait ? glassY - 0.3 : glassY + 0.08, zoom),
-      0,
-    );
+    if (portrait) {
+      state.camera.position.set(0, 0.35, THREE.MathUtils.lerp(6.4, 6.05, zoom));
+      state.camera.lookAt(0, 0.3 + zoom * 0.05, 0);
+    } else {
+      const glassY = pose.y + (TRAY_Y + 0.12) * pose.scale;
+      state.camera.position.z = THREE.MathUtils.lerp(6.4, 4.6, zoom);
+      state.camera.position.y = THREE.MathUtils.lerp(0.35, glassY + 0.4, zoom);
+      state.camera.lookAt(
+        THREE.MathUtils.lerp(g.position.x * 0.6, g.position.x * 0.5 + TAP_X * pose.scale, zoom),
+        THREE.MathUtils.lerp(0, glassY + 0.08, zoom),
+        0,
+      );
+    }
 
     // X-ray reveal
     const xray = range(p, 0.02, 0.07) * (1 - range(p, 0.22, 0.28));
