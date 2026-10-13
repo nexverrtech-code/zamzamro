@@ -74,10 +74,12 @@ function Stage({ progress, at, children }: { progress: MotionValue<number>; at: 
 function Hero({ ready }: { ready: boolean }) {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] });
-  const [p, setP] = useState(0);
+  // Only re-render when another filter stage lights up — not on every scroll tick.
+  const [lit, setLit] = useState(0);
   useMotionValueEvent(scrollYProgress, 'change', (v) => {
     heroState.progress = v;
-    setP(v);
+    const n = purifyStages.filter((st) => v >= st.at).length;
+    setLit((prev) => (prev === n ? prev : n));
   });
   useEffect(() => {
     heroState.progress = 0;
@@ -119,10 +121,10 @@ function Hero({ ready }: { ready: boolean }) {
               <h2 className="mt-2.5 text-[1.8rem] leading-tight font-medium sm:text-[2.4rem]">Four stages of <em className="text-gold-shimmer">purity</em></h2>
               <ol className="mt-4 space-y-1.5">
                 {purifyStages.map((st, i) => {
-                  const lit = p >= st.at;
+                  const on = i < lit;
                   return (
-                    <li key={st.name} className={`flex items-center gap-3 rounded-2xl px-3 py-1.5 transition-all duration-500 ${lit ? 'bg-white/80 shadow-soft' : 'opacity-40'}`}>
-                      <span className="h-3 w-3 rounded-full transition" style={{ background: st.color, boxShadow: lit ? `0 0 12px ${st.color}` : 'none' }} />
+                    <li key={st.name} className={`flex items-center gap-3 rounded-2xl px-3 py-1.5 transition-all duration-500 ${on ? 'bg-white/80 shadow-soft' : 'opacity-40'}`}>
+                      <span className="h-3 w-3 rounded-full transition" style={{ background: st.color, boxShadow: on ? `0 0 12px ${st.color}` : 'none' }} />
                       <span className="text-[0.7rem] font-medium tracking-[0.2em] text-navy">{String(i + 1).padStart(2, '0')} · {st.name.toUpperCase()}</span>
                       <span className="ml-auto hidden text-xs text-mist sm:block">{st.text}</span>
                     </li>
@@ -189,7 +191,7 @@ function Collection() {
     to: `/products/${p.slug}`,
   }));
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-sky/70 via-pearl to-blush/70 py-12 sm:py-14" aria-labelledby="collection-title">
+    <section className="relative overflow-hidden bg-gradient-to-b from-sky/70 via-pearl to-blush/70 py-8 sm:py-10" aria-labelledby="collection-title">
       <div className="container-royal">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <SectionHeading eyebrow="The collection" title={<span id="collection-title">Purifiers our customers <em className="text-gold-shimmer">love</em></span>} />
@@ -233,7 +235,7 @@ export default function Home({ ready }: { ready: boolean }) {
       <Collection />
 
       {/* Pillars */}
-      <section className="py-10 sm:py-12" aria-labelledby="pillars-title">
+      <section className="py-8 sm:py-10" aria-labelledby="pillars-title">
         <div className="container-royal">
           <SectionHeading eyebrow="Sales · Service · Installation" title={<span id="pillars-title">One trusted name for <em className="text-gold-shimmer">every drop</em></span>} />
           <div className="mt-6 grid gap-4 md:grid-cols-3">
@@ -259,7 +261,7 @@ export default function Home({ ready }: { ready: boolean }) {
       <WaterSourceMatcher />
 
       {/* Beyond purifiers — four compact cards */}
-      <section className="py-10 sm:py-12" aria-labelledby="beyond-title">
+      <section className="py-8 sm:py-10" aria-labelledby="beyond-title">
         <div className="container-royal">
           <SectionHeading eyebrow="Beyond purifiers" title={<span id="beyond-title">Smart water, <em className="text-gold-shimmer">all around the home</em></span>} />
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -294,7 +296,7 @@ export default function Home({ ready }: { ready: boolean }) {
       </section>
 
       {/* Why Zam Zam */}
-      <section className="bg-white py-10 sm:py-12" aria-labelledby="why-title">
+      <section className="bg-white py-8 sm:py-10" aria-labelledby="why-title">
         <div className="container-royal">
           <SectionHeading align="center" eyebrow="Why Zam Zam" title={<span id="why-title">Named after purity. <em className="text-gold-shimmer">Run with sincerity.</em></span>} />
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -312,7 +314,7 @@ export default function Home({ ready }: { ready: boolean }) {
       <Reviews />
 
       {/* FAQ + service areas */}
-      <section className="py-10" aria-labelledby="faq-title">
+      <section className="py-8" aria-labelledby="faq-title">
         <div className="container-royal grid gap-8 lg:grid-cols-[1fr_1.3fr]">
           <div>
             <SectionHeading eyebrow="Good to know" title={<span id="faq-title">Questions from <em className="text-gold-shimmer">Erode homes</em></span>} />

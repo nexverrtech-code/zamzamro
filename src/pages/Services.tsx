@@ -83,7 +83,7 @@ export default function Services() {
         ))}
       </section>
 
-      <section className="relative overflow-hidden bg-gradient-to-b from-sky/70 via-pearl to-blush/70 py-10 sm:py-12" aria-labelledby="works-title">
+      <section className="relative overflow-hidden bg-gradient-to-b from-sky/70 via-pearl to-blush/70 py-8 sm:py-10" aria-labelledby="works-title">
         <div className="container-royal">
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <SectionHeading eyebrow="Recent work" title={<span id="works-title">Jobs we were <em className="text-gold-shimmer">trusted with</em></span>} />

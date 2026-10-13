@@ -37,7 +37,7 @@ export default function About() {
         visual={<PureWaveVisual />}
       />
 
-      <section className="container-royal grid items-center gap-8 py-10 lg:grid-cols-[0.9fr_1.1fr]">
+      <section className="container-royal grid items-center gap-8 py-8 lg:grid-cols-[0.9fr_1.1fr]">
         <Reveal className="relative">
           <div className="relative overflow-hidden rounded-[24px] bg-white p-7 shadow-lift">
             <img src="/images/zamzam-logo.webp" alt="Zam Zam Pure Water System logo — Pure Forever" className="mx-auto w-full max-w-xs" loading="lazy" />
@@ -67,7 +67,7 @@ export default function About() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden bg-navy py-10 text-pearl" aria-labelledby="values-title">
+      <section className="relative overflow-hidden bg-navy py-8 text-pearl" aria-labelledby="values-title">
         <RealWater overlay="bg-navy/85" bubbles={10} />
         <div className="container-royal relative">
           <SectionHeading light align="center" eyebrow="What we stand for" title={<span id="values-title">Four promises behind <em className="text-gold-shimmer">Pure Forever</em></span>} />

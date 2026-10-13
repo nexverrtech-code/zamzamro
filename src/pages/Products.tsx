@@ -145,7 +145,7 @@ export default function Products() {
           </motion.div>
 
           {list.length === 0 && (
-            <div className="py-14 text-center">
+            <div className="py-8 text-center">
               <p className="font-display text-2xl text-navy">No match — yet.</p>
               <p className="mt-1 text-sm text-mist">We stock more than we can list. Ask us on WhatsApp for the model you have in mind.</p>
             </div>

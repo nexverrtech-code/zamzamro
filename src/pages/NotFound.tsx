@@ -30,7 +30,7 @@ export default function NotFound() {
           <p className="mt-10 font-display text-8xl font-medium text-navy">404</p>
           <h1 className="mt-2 text-3xl font-medium">This page has evaporated</h1>
           <p className="mx-auto mt-3 max-w-md text-mist">The link may be old or mistyped. Let’s get you back to pure water.</p>
-          <Link to="/" className="btn-royal mt-8"><ArrowLeft size={16} /> Back to home</Link>
+          <Link to="/" className="btn-royal mt-6"><ArrowLeft size={16} /> Back to home</Link>
         </div>
       </section>
     </>

@@ -40,7 +40,7 @@ export default function Installation() {
         visual={<InstallFlowVisual />}
       />
 
-      <section className="container-royal py-10" aria-labelledby="process-title">
+      <section className="container-royal py-8" aria-labelledby="process-title">
         <SectionHeading eyebrow="How it works" title={<span id="process-title">Six calm steps to <em className="text-gold-shimmer">pure water</em></span>} />
         <ol className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {steps.map((s, i) => (
@@ -65,7 +65,7 @@ export default function Installation() {
         </ol>
       </section>
 
-      <section className="bg-white py-10" aria-labelledby="req-title">
+      <section className="bg-white py-8" aria-labelledby="req-title">
         <div className="container-royal">
           <SectionHeading align="center" eyebrow="Before we arrive" title={<span id="req-title">What your site needs</span>} intro="Don’t worry if something is missing — our technician will advise on the spot." />
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -82,7 +82,7 @@ export default function Installation() {
         </div>
       </section>
 
-      <section id="enquiry" className="container-royal grid scroll-mt-28 gap-8 py-12 lg:grid-cols-[1fr_1.3fr]" aria-labelledby="book-title">
+      <section id="enquiry" className="container-royal grid scroll-mt-28 gap-8 py-9 lg:grid-cols-[1fr_1.3fr]" aria-labelledby="book-title">
         <div>
           <SectionHeading eyebrow="Book installation" title={<span id="book-title">Request a <em className="text-gold-shimmer">visit</em></span>} intro="Choose what you need and we’ll confirm a convenient time on WhatsApp." />
           <div className="mt-6">

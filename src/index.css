@@ -20,7 +20,7 @@
   --font-sans: 'Jost', system-ui, sans-serif;
 
   --shadow-soft: 0 14px 40px -18px rgb(32 38 87 / 0.16), 0 2px 6px -2px rgb(32 38 87 / 0.05);
-  --shadow-lift: 0 28px 60px -26px rgb(32 38 87 / 0.3), 0 4px 12px -4px rgb(32 38 87 / 0.06);
+  --shadow-lift: 0 28px 60px -26px rgb(31 92 132 / 0.34), 0 6px 16px -6px rgb(61 143 184 / 0.12);
   --shadow-glow: 0 0 0 1px rgb(198 173 124 / 0.35), 0 20px 50px -15px rgb(198 173 124 / 0.45);
 
   /* one soft easing curve for every transition */
@@ -54,7 +54,6 @@
     background-image:
       radial-gradient(70% 45% at 100% 0%, rgb(169 220 231 / 0.18), transparent 70%),
       radial-gradient(60% 40% at 0% 100%, rgb(246 236 230 / 0.7), transparent 70%);
-    background-attachment: fixed;
   }
   h1, h2, h3, h4 { @apply font-display font-medium text-navy; letter-spacing: -0.005em; }
   ::selection { background: var(--color-ice); color: var(--color-navy); }
@@ -64,8 +63,8 @@
 @utility container-royal { @apply mx-auto w-full max-w-[76rem] px-4 sm:px-6 lg:px-8; }
 
 @utility eyebrow {
-  @apply inline-flex items-center gap-3 font-sans text-[0.68rem] font-medium tracking-[0.3em] text-gold-deep uppercase;
-  &::before { content: ''; @apply h-px w-7 bg-gold; }
+  @apply inline-flex items-center gap-2 rounded-full bg-white/75 px-3 py-1 font-sans text-[0.64rem] font-medium tracking-[0.26em] text-gold-deep uppercase shadow-[0_4px_14px_-8px_rgb(166_138_85/0.45)] ring-1 ring-gold/25 backdrop-blur-sm;
+  &::before { content: ''; @apply h-1.5 w-1.5 rounded-full bg-gradient-to-br from-[#e8d6aa] to-gold-deep; }
 }
 
 @utility text-gold-shimmer {
@@ -74,13 +73,13 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: var(--animate-shimmer);
+  background-position: 30% 50%;
 }
 
 @utility glass {
   background: linear-gradient(140deg, rgb(255 255 255 / 0.82), rgb(240 250 252 / 0.58));
-  backdrop-filter: blur(22px) saturate(150%);
-  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
   border: 1px solid rgb(255 255 255 / 0.8);
 }
 
@@ -100,9 +99,9 @@
   &:hover::after { transform: translateX(120%); }
 }
 @utility btn-ghost { @apply btn border border-navy/10 bg-white/80 text-navy shadow-[0_6px_18px_-10px_rgb(32_38_87/0.25)] backdrop-blur hover:border-gold/60 hover:bg-white; }
-@utility btn-gold { @apply btn bg-gold text-navy-deep hover:bg-[#d6bf91] hover:shadow-glow; }
+@utility btn-gold { @apply btn bg-gradient-to-br from-[#ead9b2] to-gold text-navy-deep shadow-[0_8px_22px_-12px_rgb(166_138_85/0.7)] hover:from-[#f0e2c2] hover:to-[#d3bb8b] hover:shadow-glow; }
 
-@utility card-royal { @apply rounded-[24px] border border-white bg-white/95 shadow-soft ring-1 ring-navy/[0.04] transition-all duration-500; }
+@utility card-royal { @apply rounded-[26px] border border-white bg-gradient-to-b from-white to-[#fbfdfd] shadow-soft ring-1 ring-ice/30 transition-all duration-500; }
 
 @utility water-bg {
   background:
@@ -147,8 +146,8 @@
   90% { opacity: 0.7; }
   100% { transform: translate3d(-6px, -110vh, 0); opacity: 0; }
 }
-.zz-water-drift { animation: zz-water-drift 26s ease-in-out infinite alternate; will-change: transform; }
-.zz-water-shimmer { animation: zz-water-shimmer 9s ease-in-out infinite alternate; filter: blur(1px) brightness(1.25) contrast(1.2); will-change: transform, opacity; }
+.zz-water-drift { animation: zz-water-drift 26s ease-in-out infinite alternate; transform: translateZ(0); backface-visibility: hidden; }
+.zz-water-shimmer { display: none; }
 .zz-water-rays {
   background: repeating-linear-gradient(100deg, transparent 0 60px, rgb(255 255 255 / 0.07) 60px 95px, transparent 95px 170px);
   mask-image: linear-gradient(to bottom, black, transparent 75%);

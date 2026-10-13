@@ -82,13 +82,13 @@ function ProductView({ slug }: { slug: string }) {
                 )}
               </div>
               {gallery.length > 1 && (
-                <div className="mt-4 flex gap-3">
+                <div className="mx-auto mt-3 grid max-w-md grid-cols-6 gap-2">
                   {gallery.map((g, i) => (
                     <button
                       key={g}
                       type="button"
                       onClick={() => setShot(i)}
-                      className={`h-20 w-20 overflow-hidden rounded-2xl border-2 bg-white transition ${i === shot ? 'border-gold' : 'border-transparent opacity-70 hover:opacity-100'}`}
+                      className={`aspect-square w-full overflow-hidden rounded-xl border-2 bg-white transition ${i === shot ? 'border-gold' : 'border-transparent opacity-70 hover:opacity-100'}`}
                       aria-label={`View image ${i + 1}`}
                     >
                       <img src={g} alt="" className="h-full w-full object-cover" />
@@ -154,7 +154,7 @@ function ProductView({ slug }: { slug: string }) {
         </div>
       </section>
 
-      <section className="container-royal grid gap-6 py-12 md:grid-cols-2">
+      <section className="container-royal grid gap-6 py-9 md:grid-cols-2">
         <div className="card-royal p-5">
           <h2 className="text-2xl font-medium">Highlights</h2>
           <ul className="mt-3 space-y-2 text-[0.88rem]">

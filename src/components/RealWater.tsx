@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 /**
  * Living backdrop built from real water photography: slow camera drift,
- * a light-shimmer layer, sun shafts and rising bubbles. CSS-only, so it stays light.
+ * sun shafts and rising bubbles. CSS-only (transform/opacity), so it stays light.
  */
 export default function RealWater({
   variant = 'deep',
@@ -27,9 +27,7 @@ export default function RealWater({
 
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-      <img src={src} alt="" className="zz-water-drift absolute inset-0 h-full w-full object-cover" decoding="async" />
-      {/* light shimmer: the same photo, screened and drifting the other way */}
-      <img src={src} alt="" className="zz-water-shimmer absolute inset-0 h-full w-full object-cover mix-blend-screen" decoding="async" />
+      <img src={src} alt="" className="zz-water-drift absolute inset-0 h-full w-full object-cover" decoding="async" loading="lazy" />
       <div className={`zz-water-rays absolute inset-0 ${variant === 'surface' ? 'opacity-60' : ''}`} />
       {seeds.map((b, i) => (
         <span

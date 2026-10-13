@@ -21,10 +21,10 @@ export default function PageHero({
   children?: ReactNode;
 }) {
   return (
-    <section className="relative overflow-hidden bg-pearl pt-24 pb-8 sm:pt-28 sm:pb-10">
+    <section className="relative overflow-hidden bg-pearl pt-[5.5rem] pb-6 sm:pt-28 sm:pb-8">
       <RealWater variant="surface" overlay="bg-gradient-to-r from-pearl via-pearl/85 to-white/10 max-lg:via-pearl/90 max-lg:to-pearl/70" />
       <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-transparent to-pearl" />
-      <div className={`container-royal relative grid items-center gap-6 ${visual ? 'lg:grid-cols-[1.1fr_1fr]' : ''}`}>
+      <div className={`container-royal relative grid items-center gap-5 ${visual ? 'lg:grid-cols-[1.1fr_1fr]' : ''}`}>
         <div>
           <nav aria-label="Breadcrumb" className="mb-3 flex items-center gap-1.5 text-[0.72rem] font-medium text-mist">
             <Link to="/" className="hover:text-navy">Home</Link>

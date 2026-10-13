@@ -28,7 +28,7 @@ export default function FloatingContact() {
         <motion.a
           href={telLink}
           aria-label="Call Zam Zam"
-          className="grid h-14 w-14 place-items-center rounded-full bg-navy text-pearl shadow-lift ring-2 ring-white/70"
+          className="grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br from-navy-soft to-navy text-pearl shadow-lift ring-4 ring-white/60"
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.95 }}
         >

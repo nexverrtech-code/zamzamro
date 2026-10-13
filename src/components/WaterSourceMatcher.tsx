@@ -53,7 +53,7 @@ export default function WaterSourceMatcher() {
   const clarity = Math.max(0, 1 - tds / 2000);
 
   return (
-    <section className="relative overflow-hidden py-10 sm:py-12" aria-labelledby="matcher-title">
+    <section className="relative overflow-hidden py-8 sm:py-10" aria-labelledby="matcher-title">
       <div className="container-royal">
         <SectionHeading
           eyebrow="Water source matcher"

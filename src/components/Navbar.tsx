@@ -17,21 +17,12 @@ export const navItems = [
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
   const location = useLocation();
 
+  // The bar keeps one fixed size and stays put; scrolling only deepens its shadow slightly.
   useEffect(() => {
-    let last = window.scrollY;
-    // Tuck the bar away while reading downwards; glide it back the moment you scroll up.
-    const onScroll = () => {
-      const y = window.scrollY;
-      setScrolled(y > 24);
-      if (Math.abs(y - last) > 6) {
-        setHidden(y > last && y > 240);
-        last = y;
-      }
-    };
+    const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -46,18 +37,15 @@ export default function Navbar() {
   }, [open]);
 
   return (
-    <header
-      className={`fixed inset-x-0 top-0 z-50 px-3 pt-3 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-5 ${
-        hidden && !open ? '-translate-y-[130%]' : 'translate-y-0'
-      }`}
-    >
+    <>
+    <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5">
       <nav
         aria-label="Main"
-        className={`mx-auto flex max-w-7xl items-center justify-between rounded-full px-4 transition-all duration-500 sm:px-6 ${
-          scrolled ? 'glass py-2 shadow-soft' : 'glass py-3 shadow-soft'
+        className={`glass mx-auto flex h-16 max-w-7xl items-center justify-between rounded-full px-4 transition-shadow duration-500 sm:px-6 ${
+          scrolled ? 'shadow-lift' : 'shadow-soft'
         }`}
       >
-        <Logo compact={scrolled} />
+        <Logo compact />
 
         <ul className="hidden items-center gap-1 lg:flex">
           {navItems.map((item) => (
@@ -102,11 +90,13 @@ export default function Navbar() {
         </div>
       </nav>
 
+    </header>
+
       <AnimatePresence>
         {open && (
           <motion.div
             data-lenis-prevent
-            className="fixed inset-0 -z-10 flex flex-col bg-navy px-6 pt-28 pb-10 text-pearl lg:hidden"
+            className="fixed inset-0 z-[45] flex flex-col overflow-y-auto bg-navy px-6 pt-28 pb-10 text-pearl lg:hidden"
             initial={{ clipPath: 'circle(0% at 92% 6%)' }}
             animate={{ clipPath: 'circle(150% at 92% 6%)' }}
             exit={{ clipPath: 'circle(0% at 92% 6%)' }}
@@ -135,6 +125,6 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </>
   );
 }

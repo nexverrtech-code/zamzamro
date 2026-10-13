@@ -29,7 +29,7 @@ export default function PurificationJourney() {
 
   return (
     <section
-      className="relative overflow-hidden bg-navy py-10 text-pearl sm:py-12"
+      className="relative overflow-hidden bg-navy py-8 text-pearl sm:py-12"
       aria-labelledby="journey-title"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}

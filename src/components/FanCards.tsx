@@ -24,10 +24,10 @@ export default function FanCards({ items }: { items: FanItem[] }) {
     <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pt-6 pb-10 lg:mx-0 lg:justify-center lg:gap-0 lg:overflow-visible lg:px-0">
       {items.map((it, i) => {
         const cls =
-          'block bg-white shadow-[0_30px_50px_-28px_rgba(20,24,56,0.45)] ring-1 ring-navy/5 transition-shadow duration-500 group-hover:shadow-[0_40px_70px_-25px_rgba(20,24,56,0.55)]';
+          'block overflow-hidden rounded-[18px] bg-white shadow-[0_30px_50px_-28px_rgba(31,92,132,0.45)] ring-1 ring-ice/40 transition-shadow duration-500 group-hover:shadow-[0_40px_70px_-25px_rgba(31,92,132,0.55)]';
         const body = (
           <>
-            <div className="aspect-[4/3.1] overflow-hidden bg-aqua">
+            <div className="m-2 mb-0 aspect-[4/3.1] overflow-hidden rounded-[13px] bg-aqua">
               <img src={it.image} alt={it.alt} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.06]" />
             </div>
             <div className="px-5 pt-4 pb-5">

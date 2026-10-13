@@ -77,7 +77,7 @@ export default function FAQ() {
         {results.length ? (
           <FaqList key={query} items={results} />
         ) : (
-          <p className="py-10 text-center text-mist">No match — call us and we’ll answer it personally.</p>
+          <p className="py-8 text-center text-mist">No match — call us and we’ll answer it personally.</p>
         )}
       </section>
       <CtaBanner title="Still have a question?" text="Ask us directly — happy to help, even if you’re not buying today." />

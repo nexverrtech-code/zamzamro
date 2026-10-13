@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { ContactShadows, Environment, Lightformer, RoundedBox, useTexture } from '@react-three/drei';
+import { ContactShadows, Environment, Lightformer, PerformanceMonitor, RoundedBox, useTexture } from '@react-three/drei';
 import { heroState } from './heroState';
 
 /* ── Aqua 2090 Raga RO purifier, modelled from the product photography ────────
@@ -493,7 +493,7 @@ function Purifier({ low }: { low: boolean }) {
         </mesh>
       ))}
 
-      <ContactShadows position={[0.05, BASE + 0.002, 0.1]} scale={2.6} blur={2} opacity={0.55} far={1.4} resolution={low ? 256 : 512} color="#0b2236" />
+      <ContactShadows frames={2} position={[0.05, BASE + 0.002, 0.1]} scale={2.6} blur={2} opacity={0.55} far={1.4} resolution={low ? 256 : 384} color="#0b2236" />
     </group>
   );
 }
@@ -536,7 +536,7 @@ const backdropFragment = /* glsl */ `
   }
   float fbm(vec2 p) {
     float v = 0.0, a = 0.5;
-    for (int k = 0; k < 4; k++) { v += a * noise(p); p *= 2.03; a *= 0.5; }
+    for (int k = 0; k < 3; k++) { v += a * noise(p); p *= 2.03; a *= 0.5; }
     return v;
   }
 
@@ -558,12 +558,16 @@ const backdropFragment = /* glsl */ `
   void main() {
     float t = uTime;
 
+    vec3 deep = vec3(0.0);
+    vec3 surface = vec3(0.0);
+
     // ── Deep water: domain-warped flow so the whole photo sways and drifts like real water
+    if (uMix < 0.999) {
     vec2 ua = cover(vUv, uDeepAspect);
     vec2 q = vec2(fbm(ua * 3.0 + vec2(0.0, t * 0.12)), fbm(ua * 3.0 + vec2(5.2, -t * 0.1)));
     vec2 flow = (q - 0.5) * 0.022;
     flow.y += sin(ua.x * 9.0 + t * 0.8) * 0.0025;
-    vec3 deep = texture2D(uDeep, ua + flow).rgb;
+    deep = texture2D(uDeep, ua + flow).rgb;
     // slight chromatic shimmer, like light bending through moving water
     deep.r = texture2D(uDeep, ua + flow * 1.25).r;
 
@@ -572,29 +576,32 @@ const backdropFragment = /* glsl */ `
     deep += vec3(0.75, 0.95, 1.0) * cst * 0.32 * nearSurface;
 
     // swaying sun shafts
-    float sway = sin(t * 0.25) * 0.08 + fbm(vec2(ua.x * 2.0, t * 0.1)) * 0.1;
+    float sway = sin(t * 0.25) * 0.08 + sin(ua.x * 5.0 + t * 0.3) * 0.04;
     vec2 sun = vec2(0.66, 1.05);
     float ang = atan(ua.x - sun.x, sun.y - ua.y);
     float shafts = pow(max(0.0, sin(ang * 22.0 + sway * 6.0)), 8.0) * smoothstep(1.1, 0.2, distance(ua, sun));
-    shafts *= 0.55 + 0.45 * fbm(vec2(ua.x * 4.0, t * 0.3));
+    shafts *= 0.6 + 0.4 * noise(vec2(ua.x * 6.0, t * 0.3));
     deep += vec3(0.82, 0.96, 1.0) * shafts * 0.16 * smoothstep(0.05, 1.0, ua.y);
 
     // flickering highlights where waves break near the top
-    float glint = smoothstep(0.82, 0.98, fbm(ua * 14.0 + vec2(t * 0.6, -t * 0.4))) * nearSurface;
+    float glint = smoothstep(0.86, 0.99, noise(ua * 22.0 + vec2(t * 0.6, -t * 0.4))) * nearSurface;
     deep += glint * 0.25;
+    }
 
-    // ── Sea surface: rolling swell below the horizon, sparkles on the crests
+    // ── Sea surface: rolling swell, sparkles on the crests
+    if (uMix > 0.001) {
     vec2 ub = cover(vUv, uSurfaceAspect);
     float below = 1.0; // aerial sea: the whole frame is water
     vec2 swell = vec2(
       (fbm(ub * vec2(3.0, 9.0) + vec2(t * 0.15, 0.0)) - 0.5) * 0.012,
       sin(ub.x * 12.0 + ub.y * 40.0 - t * 1.1) * 0.004 + (fbm(ub * 6.0 - t * 0.2) - 0.5) * 0.01
     ) * below;
-    vec3 surface = texture2D(uSurface, ub + swell).rgb;
+    surface = texture2D(uSurface, ub + swell).rgb;
     float sparkle = smoothstep(0.93, 1.0, noise(ub * vec2(160.0, 120.0) + vec2(t * 2.0, -t * 1.4)));
     surface += sparkle * 0.3;
     // sunlight caustics dancing across the shallow turquoise
     surface += vec3(0.85, 1.0, 0.98) * caustic(ub * 1.4 + swell * 3.0, t * 0.35) * 0.18;
+    }
 
     vec3 col = mix(deep, surface, uMix);
     float v = length(vUv - 0.5);
@@ -624,6 +631,8 @@ function WaterBackdrop() {
     // Keep the photo's exact tones: sample raw sRGB values and skip tone mapping.
     [deep, surface].forEach((t) => {
       t.colorSpace = THREE.NoColorSpace;
+      t.anisotropy = 8;
+      t.minFilter = THREE.LinearMipmapLinearFilter;
       t.needsUpdate = true;
     });
   }, [deep, surface]);
@@ -761,6 +770,7 @@ export default function HeroPurifier() {
   const wrap = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(true);
   const low = useMemo(() => window.matchMedia('(max-width: 768px)').matches || (navigator.hardwareConcurrency ?? 8) <= 4, []);
+  const [dpr, setDpr] = useState(low ? 1.35 : 1.75);
 
   useEffect(() => {
     const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting));
@@ -772,10 +782,17 @@ export default function HeroPurifier() {
     <div ref={wrap} className="absolute inset-0" aria-hidden>
       <Canvas
         frameloop={visible ? 'always' : 'never'}
-        dpr={low ? [1, 1.5] : [1, 2]}
+        dpr={dpr}
         camera={{ position: [0, 0.35, 6.4], fov: 30 }}
-        gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 0.95 }}
+        gl={{ antialias: true, powerPreference: 'high-performance', toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 0.95 }}
+        onCreated={({ gl }) => {
+          // Render the water refraction pass at half resolution — visually identical, much cheaper.
+          const r = gl as unknown as { transmissionResolutionScale?: number };
+          if ('transmissionResolutionScale' in r) r.transmissionResolutionScale = 0.5;
+        }}
       >
+        {/* Drop resolution automatically if frames start to slip; restore when smooth again. */}
+        <PerformanceMonitor onDecline={() => setDpr(low ? 1 : 1.25)} onIncline={() => setDpr(low ? 1.35 : 1.75)} flipflops={3} onFallback={() => setDpr(1)} />
         <WaterBackdrop />
         <ambientLight intensity={0.18} />
         <hemisphereLight args={['#eaf8ff', '#1d6f96', 0.4]} />
@@ -783,9 +800,9 @@ export default function HeroPurifier() {
         <directionalLight position={[-5, 2, 2]} intensity={0.6} color="#9fdcf0" />
         <spotLight position={[-2, 4, -3]} intensity={16} angle={0.7} penumbra={1} color="#bfe9ff" />
         <Purifier low={low} />
-        <Bubbles count={low ? 70 : 170} />
-        <Suspended count={low ? 120 : 320} />
-        <Environment resolution={low ? 128 : 256}>
+        <Bubbles count={low ? 50 : 140} />
+        <Suspended count={low ? 80 : 240} />
+        <Environment resolution={256}>
           <Lightformer form="rect" intensity={2.2} position={[0, 5, 2]} rotation-x={Math.PI / 2} scale={[8, 3, 1]} />
           <Lightformer form="rect" intensity={2.5} position={[-5, 1, 3]} rotation-y={Math.PI / 2} scale={[6, 2.5, 1]} color="#cdeefa" />
           <Lightformer form="rect" intensity={1.8} position={[5, 1, 2]} rotation-y={-Math.PI / 2} scale={[6, 2, 1]} color="#f3e3c2" />

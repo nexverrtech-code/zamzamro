@@ -7,25 +7,25 @@ import { navItems } from './Navbar';
 
 export default function Footer() {
   return (
-    <footer className="relative mt-14 bg-navy text-pearl">
+    <footer className="relative mt-12 bg-gradient-to-b from-navy via-navy to-[#171c45] text-pearl">
       <svg aria-hidden viewBox="0 0 1440 90" preserveAspectRatio="none" className="absolute -top-[47px] left-0 h-[48px] w-full text-navy">
         <path fill="currentColor" d="M0,60 C240,10 480,10 720,45 C960,80 1200,80 1440,30 L1440,90 L0,90 Z" />
       </svg>
 
-      <div className="container-royal grid gap-7 py-9 text-[0.82rem] sm:grid-cols-2 lg:grid-cols-[1.3fr_0.8fr_1.5fr_1.3fr]">
+      <div className="container-royal grid gap-6 py-8 text-[0.82rem] sm:grid-cols-2 lg:grid-cols-[1.3fr_0.8fr_1.5fr_1.3fr]">
         <div>
           <Logo light />
-          <p className="mt-4 max-w-xs leading-relaxed text-pearl/70">
+          <p className="mt-3 max-w-xs leading-relaxed text-pearl/70">
             RO water purifier sales, service and installation in Erode — plus water softeners, UPS batteries and automatic water level controllers.
           </p>
-          <p className="mt-4 flex items-center gap-3 font-display text-lg text-gold italic">
+          <p className="mt-3 flex items-center gap-3 font-display text-lg text-gold italic">
             <span className="h-px w-8 bg-gold" /> Pure Forever
           </p>
         </div>
 
         <div>
           <h3 className="font-sans text-[0.68rem] font-medium tracking-[0.3em] !text-gold">EXPLORE</h3>
-          <ul className="mt-3 space-y-1.5">
+          <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 sm:grid-cols-1">
             {[...navItems, { to: '/faq', label: 'FAQs' }, { to: '/privacy', label: 'Privacy Policy' }].map((n) => (
               <li key={n.to}>
                 <Link to={n.to} className="text-pearl/75 transition hover:text-pearl">{n.label}</Link>

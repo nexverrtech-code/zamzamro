@@ -23,7 +23,7 @@ export function ProductDeckVisual() {
 
   return (
     <div
-      className="relative mx-auto h-[270px] w-full max-w-sm sm:h-[300px]"
+      className="relative mx-auto h-[240px] w-full max-w-sm sm:h-[300px]"
       style={{ perspective: 1200 }}
       onPointerMove={(e) => {
         const r = e.currentTarget.getBoundingClientRect();
@@ -41,7 +41,7 @@ export function ProductDeckVisual() {
           return (
             <motion.div
               key={p.slug}
-              className="absolute top-1/2 left-1/2 h-[240px] w-[185px] cursor-pointer overflow-hidden rounded-[18px] border-4 border-white bg-white shadow-lift sm:h-[270px] sm:w-[205px]"
+              className="absolute top-1/2 left-1/2 h-[210px] w-[160px] cursor-pointer overflow-hidden rounded-[18px] border-4 border-white bg-white shadow-lift sm:h-[270px] sm:w-[205px]"
               animate={{
                 x: `calc(-50% + ${pos * 28 - 48}px)`,
                 y: `calc(-50% + ${pos * -14 + 20}px)`,
@@ -79,7 +79,7 @@ export function ServiceOrbitVisual() {
   const [hover, setHover] = useState<number | null>(null);
   const items = services;
   return (
-    <div className="relative mx-auto aspect-square w-full max-w-[320px]">
+    <div className="relative mx-auto aspect-square w-full max-w-[260px] sm:max-w-[320px]">
       <div className="absolute inset-[18%] rounded-full bg-[radial-gradient(circle_at_35%_30%,#ffffff,#e4f5f8_55%,#a9dce7)] shadow-[0_40px_60px_-25px_rgba(32,38,87,0.45),inset_0_-12px_30px_rgba(61,143,184,0.25)]" />
       <div className="absolute inset-[6%] rounded-full border border-dashed border-navy/15" />
       <div className="absolute inset-0 grid place-items-center">
@@ -125,7 +125,7 @@ export function ServiceOrbitVisual() {
 /* ───────────── Installation: realistic schematic — tank → purifier → chrome tap → glass ───────────── */
 export function InstallFlowVisual() {
   return (
-    <svg viewBox="0 0 440 340" className="mx-auto w-full max-w-md drop-shadow-[0_30px_40px_rgba(32,38,87,0.18)]" role="img" aria-label="Animated diagram of water flowing from a tank through a purifier into a glass">
+    <svg viewBox="0 0 440 340" className="mx-auto w-full max-w-[320px] drop-shadow-[0_30px_40px_rgba(32,38,87,0.18)] sm:max-w-md" role="img" aria-label="Animated diagram of water flowing from a tank through a purifier into a glass">
       <defs>
         <linearGradient id="iv-chrome" x1="0" x2="0" y1="0" y2="1">
           <stop offset="0" stopColor="#ffffff" />
@@ -261,7 +261,7 @@ export function InstallFlowVisual() {
 export function PureWaveVisual() {
   const wave = 'M0 92 Q 62 74 125 92 T 250 92 T 375 92 T 500 92 T 625 92 T 750 92 T 875 92 T 1000 92 V 260 H 0 Z';
   return (
-    <div className="relative mx-auto w-full max-w-md">
+    <div className="relative mx-auto w-full max-w-[320px] sm:max-w-md">
       <svg viewBox="0 0 500 220" className="w-full drop-shadow-[0_24px_30px_rgba(16,40,70,0.25)]" role="img" aria-label="The word PURE filling with water">
         <defs>
           <clipPath id="pure-text">
@@ -338,7 +338,8 @@ export function RadarMapVisual() {
   }, []);
 
   return (
-    <div ref={ref} className="relative mx-auto aspect-square w-full max-w-[320px] overflow-hidden rounded-full bg-navy shadow-lift">
+    <div className="mx-auto w-full max-w-[250px] sm:max-w-[320px]">
+    <div ref={ref} className="relative aspect-square w-full overflow-hidden rounded-full bg-navy shadow-lift">
       {/* grid + rings */}
       <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(#a9dce7 1px, transparent 1px), linear-gradient(90deg, #a9dce7 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
       {[0.25, 0.5, 0.75].map((r) => (
@@ -380,11 +381,12 @@ export function RadarMapVisual() {
         <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-gold text-navy-deep shadow-glow">
           <MapPin size={22} />
         </span>
-        <p className="mt-2 font-royal text-[0.65rem] tracking-[0.2em] text-gold">POONDURAI ROAD</p>
+        <p className="mt-2 font-royal text-[0.6rem] tracking-[0.2em] text-gold">POONDURAI ROAD</p>
       </div>
-      <p className="absolute bottom-[11%] left-1/2 -translate-x-1/2 rounded-full bg-white/10 px-3 py-1 text-[0.7rem] font-semibold text-pearl">
-        Erode · {time}
-      </p>
+    </div>
+    <p className="mt-3 text-center text-[0.72rem] font-medium text-navy/70">
+      <span className="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#25D366] align-middle" /> Erode · {time}
+    </p>
     </div>
   );
 }
