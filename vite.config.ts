@@ -5,11 +5,15 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
-    chunkSizeWarningLimit: 1100,
+    target: 'es2022',
+    chunkSizeWarningLimit: 1200,
     rollupOptions: {
       output: {
+        // Keep the heavy 3D stack in its own lazily-loaded chunk.
         manualChunks(id) {
-          if (id.includes('node_modules/motion') || id.includes('framer-motion')) return 'motion';
+          if (/node_modules\/(three|@react-three|three-stdlib|troika|camera-controls|maath)/.test(id)) return 'three';
+          if (/node_modules\/(motion|framer-motion|motion-dom|motion-utils)/.test(id)) return 'motion';
+          if (/node_modules\/(react|react-dom|react-router|react-router-dom|scheduler)\//.test(id)) return 'react';
         },
       },
     },

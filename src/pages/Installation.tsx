@@ -1,95 +1,131 @@
-import { motion } from 'motion/react';
-import { ClipboardCheck, Droplet, GlassWater, Hammer, MessageSquare, Plug, ShowerHead, Ruler, Smile, TestTube2 } from 'lucide-react';
-import Seo, { breadcrumb } from '../components/Seo';
-import PageHero from '../components/PageHero';
-import Reveal from '../components/Reveal';
-import SectionHeading from '../components/SectionHeading';
-import EnquiryForm from '../components/EnquiryForm';
-import FaqList from '../components/FaqList';
-import { InstallFlowVisual } from '../components/HeroVisuals';
+import { useSearchParams } from 'react-router-dom';
+import { CheckCircle2, Droplet, LayoutPanelTop, LifeBuoy, Lightbulb, MessageCircle, Plug, Search, ShowerHead, TestTube2, Wrench } from 'lucide-react';
+import Seo from '../components/ui/Seo';
+import PageHero from '../components/ui/PageHero';
+import InstallIllustration from '../components/ui/InstallIllustration';
+import SectionHeading from '../components/ui/SectionHeading';
+import Reveal from '../components/ui/Reveal';
+import FaqAccordion from '../components/ui/FaqAccordion';
+import EnquiryForm from '../components/forms/EnquiryForm';
+import WhatsAppIcon from '../components/ui/WhatsAppIcon';
 import { routeMeta } from '../data/seo';
 import { faqs } from '../data/faqs';
+import { breadcrumb } from '../lib/schema';
+import { messages, whatsappLink } from '../lib/whatsapp';
+import { useLang } from '../i18n/LanguageProvider';
 
-const steps = [
-  { icon: MessageSquare, title: 'You reach out', text: 'Call, WhatsApp or send the enquiry form with your area and preferred time.' },
-  { icon: TestTube2, title: 'Water check', text: 'We check your water source and TDS so the recommendation fits your actual water.' },
-  { icon: ClipboardCheck, title: 'Right recommendation', text: 'We explain the options — RO, copper, alkaline, softener — and what each one does for you.' },
-  { icon: Hammer, title: 'Careful installation', text: 'Secure mounting, neat tubing and leak-free fittings at the inlet, outlet and drain.' },
-  { icon: GlassWater, title: 'Tested & demonstrated', text: 'We test output water on site and show your family the indicators and daily care.' },
-  { icon: Smile, title: 'Always reachable', text: 'Filter reminders, service visits and quick help whenever you need it.' },
-];
-
-const requirements = [
-  { icon: Droplet, title: 'Water inlet line', text: 'A tap or line near the installation point.' },
-  { icon: Plug, title: 'Power socket', text: 'A working 5/6 A socket within reach.' },
-  { icon: ShowerHead, title: 'Drain outlet', text: 'For RO reject water — or we can suggest reuse.' },
-  { icon: Ruler, title: 'Wall space', text: 'Clear wall area near the kitchen sink.' },
-];
+const STEPS = [MessageCircle, Search, Lightbulb, Wrench, TestTube2, LifeBuoy].map((icon, i) => ({ icon, n: (i + 1) as 1 | 2 | 3 | 4 | 5 | 6 }));
+const REQUIREMENTS = [Droplet, Plug, ShowerHead, LayoutPanelTop].map((icon, i) => ({ icon, n: (i + 1) as 1 | 2 | 3 | 4 }));
 
 export default function Installation() {
   const meta = routeMeta.installation;
-
+  const { t } = useLang();
+  const [params] = useSearchParams();
+  const crumbs = [
+    { name: t('nav.home'), path: '/' },
+    { name: t('nav.installation'), path: '/installation' },
+  ];
+  const installFaqs = faqs.filter((f) => f.topics.includes('Installation'));
   return (
     <>
-      <Seo title={meta.title} description={meta.description} path={meta.path} jsonLd={breadcrumb([{ name: 'Home', path: '/' }, { name: 'Installation', path: '/installation' }])} />
+      <Seo title={meta.title} description={meta.description} path="/installation" jsonLd={breadcrumb([{ name: 'Home', path: '/' }, { name: 'Installation', path: '/installation' }])} />
       <PageHero
-        crumb="Installation"
-        eyebrow="Doorstep installation"
-        title={<>RO purifier installation <em className="text-gold-shimmer">in Erode</em></>}
-        intro="Purifiers, softeners and water level controllers — installed neatly, tested on site and explained to your family."
-        visual={<InstallFlowVisual />}
-      />
+        eyebrow={t('in.eyebrow')}
+        title={
+          <>
+            {t('in.title')} <span className="accent text-gold">{t('in.accent')}</span>
+          </>
+        }
+        intro={t('in.intro')}
+        crumbs={crumbs}
+        visual={<InstallIllustration />}
+      >
+        <a href="#install-enquiry" className="btn-gold">
+          {t('cta.bookInstallation')}
+        </a>
+        <a href={whatsappLink(messages.installation())} target="_blank" rel="noopener noreferrer" className="btn-light">
+          <WhatsAppIcon /> {t('cta.whatsapp')}
+        </a>
+      </PageHero>
 
-      <section className="container-royal py-8" aria-labelledby="process-title">
-        <SectionHeading eyebrow="How it works" title={<span id="process-title">Six calm steps to <em className="text-gold-shimmer">pure water</em></span>} />
-        <ol className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {steps.map((s, i) => (
-            <motion.li
-              key={s.title}
-              className="group relative flex gap-3.5 rounded-2xl border border-navy/8 bg-white p-4 shadow-soft"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ duration: 0.6, delay: (i % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-navy text-gold transition group-hover:rotate-[-6deg]">
-                <s.icon size={17} />
-              </span>
-              <div>
-                <p className="text-[0.6rem] font-medium tracking-[0.28em] text-gold-deep">STEP {String(i + 1).padStart(2, '0')}</p>
-                <h3 className="text-lg leading-snug font-medium">{s.title}</h3>
-                <p className="mt-0.5 text-[0.8rem] leading-relaxed text-mist">{s.text}</p>
-              </div>
-            </motion.li>
-          ))}
-        </ol>
-      </section>
-
-      <section className="bg-white py-8" aria-labelledby="req-title">
+      <section className="section" aria-labelledby="steps-title">
         <div className="container-royal">
-          <SectionHeading align="center" eyebrow="Before we arrive" title={<span id="req-title">What your site needs</span>} intro="Don’t worry if something is missing — our technician will advise on the spot." />
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {requirements.map((r, i) => (
-              <Reveal key={r.title} delay={i * 0.08} className="flex items-center gap-3 rounded-2xl border border-navy/8 bg-pearl p-4">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-aqua text-navy"><r.icon size={18} strokeWidth={1.5} /></span>
-                <span>
-                  <h3 className="text-lg leading-tight font-medium">{r.title}</h3>
-                  <p className="text-[0.78rem] text-mist">{r.text}</p>
+          <SectionHeading
+            id="steps-title"
+            eyebrow={t('in.steps.eyebrow')}
+            title={
+              <>
+                {t('in.steps.title')} <span className="accent">{t('in.steps.accent')}</span>
+              </>
+            }
+          />
+          <ol className="relative mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {STEPS.map((s, i) => (
+              <Reveal as="li" key={s.n} delay={(i % 3) * 0.06} className="card-royal relative p-6">
+                <span className="absolute top-5 right-6 font-display text-[3rem] leading-none text-ice">0{s.n}</span>
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-navy-soft to-navy text-white">
+                  <s.icon className="h-5 w-5" aria-hidden />
                 </span>
+                <h3 className="mt-4 text-[1.5rem]">{t(`in.s${s.n}.t`)}</h3>
+                <p className="mt-1 text-[0.9rem] text-mist">{t(`in.s${s.n}.d`)}</p>
               </Reveal>
             ))}
-          </div>
+          </ol>
         </div>
       </section>
 
-      <section id="enquiry" className="container-royal grid scroll-mt-28 gap-8 py-9 lg:grid-cols-[1fr_1.3fr]" aria-labelledby="book-title">
-        <div>
-          <SectionHeading eyebrow="Book installation" title={<span id="book-title">Request a <em className="text-gold-shimmer">visit</em></span>} intro="Choose what you need and we’ll confirm a convenient time on WhatsApp." />
-          <div className="mt-6">
-            <FaqList items={faqs.filter((f) => /install|need ready|controller/i.test(f.q))} />
+      <section className="section bg-gradient-to-b from-aqua/60 to-pearl" aria-labelledby="req-title">
+        <div className="container-royal grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+          <div>
+            <SectionHeading
+              id="req-title"
+              eyebrow={t('in.req.eyebrow')}
+              title={
+                <>
+                  {t('in.req.title')}
+                  <span className="accent">{t('in.req.accent')}</span>
+                </>
+              }
+              intro={t('in.req.intro')}
+            />
+          </div>
+          <ul className="grid gap-4 sm:grid-cols-2">
+            {REQUIREMENTS.map((r, i) => (
+              <Reveal as="li" key={r.n} delay={i * 0.05} className="flex gap-4 rounded-[22px] border border-ice/60 bg-white p-5">
+                <r.icon className="h-6 w-6 shrink-0 text-ocean" aria-hidden />
+                <div>
+                  <h3 className="font-sans text-[0.98rem] font-medium text-navy">{t(`in.r${r.n}.t`)}</h3>
+                  <p className="text-[0.86rem] text-mist">{t(`in.r${r.n}.d`)}</p>
+                </div>
+              </Reveal>
+            ))}
+            <li className="flex items-center gap-2 text-[0.8rem] text-mist sm:col-span-2">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-ocean" aria-hidden /> {t('in.req.tip')}
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="install-faq-title">
+        <div className="container-royal grid gap-10 lg:grid-cols-2">
+          <div>
+            <SectionHeading
+              id="install-faq-title"
+              eyebrow={t('in.faq.eyebrow')}
+              title={
+                <>
+                  {t('in.faq.title')} <span className="accent">{t('in.faq.accent')}</span>
+                </>
+              }
+            />
+            <div className="mt-8">
+              <FaqAccordion items={installFaqs} />
+            </div>
+          </div>
+          <div id="install-enquiry" className="scroll-mt-24">
+            <EnquiryForm title={t('in.form')} defaultService={params.get('service') ?? 'Expert Installation'} defaultProduct={params.get('product') ?? ''} />
           </div>
         </div>
-        <EnquiryForm defaultService="ro-installation" />
       </section>
     </>
   );

@@ -1,14 +1,15 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'motion/react';
-import Preloader from './components/Preloader';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import FloatingContact from './components/FloatingContact';
-import ScrollProgress from './components/ScrollProgress';
-import ClickRipple from './components/ClickRipple';
+import { AnimatePresence, MotionConfig, motion } from 'motion/react';
+import Preloader from './components/layout/Preloader';
+import Header from './components/layout/Header';
+import Footer from './components/layout/Footer';
+import FloatingContact from './components/layout/FloatingContact';
+import ScrollProgress from './components/layout/ScrollProgress';
+import ClickFeedback from './components/layout/ClickFeedback';
 import Home from './pages/Home';
-import { initSmoothScroll, scrollToElement, scrollToTop } from './lib/smoothScroll';
+import { initSmoothScroll, scrollToElement, scrollToTop } from './lib/scroll';
+import { EASE } from './lib/motion';
 
 const Products = lazy(() => import('./pages/Products'));
 const ProductDetail = lazy(() => import('./pages/ProductDetail'));
@@ -22,40 +23,44 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 
 export default function App() {
   const location = useLocation();
-
-  // The branded preloader plays on every fresh open / reload.
   const [loading, setLoading] = useState(true);
+  const finish = useCallback(() => setLoading(false), []);
 
-  useEffect(() => {
-    initSmoothScroll();
-  }, []);
+  useEffect(() => initSmoothScroll(), []);
 
+  // Scroll to top on route change, or to the #anchor (offset for the fixed header).
   useEffect(() => {
     if (loading) return;
     if (location.hash) {
-      const el = document.querySelector<HTMLElement>(location.hash);
-      if (el) return void setTimeout(() => scrollToElement(el), 450);
+      const id = decodeURIComponent(location.hash.slice(1));
+      let tries = 0;
+      const seek = () => {
+        const el = document.getElementById(id);
+        if (el) scrollToElement(el);
+        else if (tries++ < 20) setTimeout(seek, 100); // wait for lazy route + exit transition
+      };
+      setTimeout(seek, 380);
+      return;
     }
     scrollToTop();
   }, [location.pathname, location.hash, loading]);
 
-  const finishLoading = () => setLoading(false);
-
   return (
-    <>
-      <AnimatePresence>{loading && <Preloader onDone={finishLoading} />}</AnimatePresence>
+    <MotionConfig reducedMotion="user" transition={{ ease: EASE }}>
+      <AnimatePresence>{loading && <Preloader onDone={finish} />}</AnimatePresence>
       <ScrollProgress />
-      <ClickRipple />
-      <Navbar />
-      <AnimatePresence mode="wait">
+      <ClickFeedback />
+      <Header />
+      <AnimatePresence mode="wait" initial={false}>
         <motion.main
+          id="main"
           key={location.pathname}
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -6 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.4, ease: EASE }}
         >
-          <Suspense fallback={<div className="min-h-screen water-bg" />}>
+          <Suspense fallback={<div className="min-h-svh water-soft" aria-busy="true" />}>
             <Routes location={location}>
               <Route path="/" element={<Home ready={!loading} />} />
               <Route path="/products" element={<Products />} />
@@ -73,6 +78,6 @@ export default function App() {
       </AnimatePresence>
       <Footer />
       <FloatingContact />
-    </>
+    </MotionConfig>
   );
 }

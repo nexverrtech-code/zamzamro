@@ -4,3 +4,6 @@ dist
 
 # Cloudflare / Wrangler
 .wrangler
+
+# Packaged deliverable
+zamzamro-project.zip

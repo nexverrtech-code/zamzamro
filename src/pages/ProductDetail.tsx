@@ -1,197 +1,188 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { AnimatePresence, motion } from 'motion/react';
-import { ArrowLeft, Check, ChevronRight, MessageCircle, Phone, ShieldCheck, Truck, Wrench } from 'lucide-react';
-import Seo, { breadcrumb } from '../components/Seo';
-import ProductCard, { ProductVisual, productEnquiry } from '../components/ProductCard';
-import CtaBanner from '../components/CtaBanner';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Check, Phone, ShieldCheck, Sparkles, Wrench } from 'lucide-react';
+import Seo from '../components/ui/Seo';
+import Breadcrumbs from '../components/ui/Breadcrumbs';
+import Swatches from '../components/ui/Swatches';
+import WhatsAppIcon from '../components/ui/WhatsAppIcon';
+import Reveal from '../components/ui/Reveal';
+import Gallery from '../components/products/Gallery';
+import ProductCard from '../components/products/ProductCard';
 import NotFound from './NotFound';
-import { fullName, getProduct, products, seoName } from '../data/products';
-import { business, SITE_URL, telLink } from '../data/business';
+import { categoryLabel, fullName, ptext, specText, titleName, getProduct, productPath, relatedProducts } from '../data/products';
+import { business, telLink } from '../data/business';
+import { messages, whatsappLink } from '../lib/whatsapp';
+import { breadcrumb, productSchema } from '../lib/schema';
+import { bookPath } from '../components/layout/nav';
+import { useLang } from '../i18n/LanguageProvider';
 
 export default function ProductDetail() {
   const { slug = '' } = useParams();
-  return <ProductView key={slug} slug={slug} />;
-}
-
-function ProductView({ slug }: { slug: string }) {
   const product = getProduct(slug);
-  const [shot, setShot] = useState(0);
-  const [colour, setColour] = useState(0);
+  const [params, setParams] = useSearchParams();
+  const { t, lang } = useLang();
+  const colourParam = params.get('colour');
+  const colour = product?.colours.find((c) => c.id === colourParam) ?? product?.colours[0];
+  const [imgIndex, setImgIndex] = useState(colour?.image ?? 0);
 
   if (!product) return <NotFound />;
 
-  const gallery = product.gallery.length ? product.gallery : product.image ? [product.image] : [];
-  const related = products.filter((p) => p.slug !== product.slug && p.category === product.category).slice(0, 3);
-  const title = `${seoName(product)} in Erode | Zam Zam Pure Water System`;
-  const description = `${product.tagline} ${product.summary}`.slice(0, 158);
+  const name = fullName(product);
+  const txt = ptext(product, lang);
+  const crumbs = [
+    { name: t('nav.home'), path: '/' },
+    { name: t('nav.products'), path: '/products' },
+    { name, path: productPath(product) },
+  ];
 
-  const productLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: fullName(product),
-    brand: { '@type': 'Brand', name: product.brand },
-    description: product.summary,
-    image: gallery.map((g) => `${SITE_URL}${g}`),
-    category: product.category === 'domestic' ? 'Water purifier' : product.name,
-    url: `${SITE_URL}/products/${product.slug}`,
+  const pickColour = (id: string) => {
+    const c = product.colours.find((x) => x.id === id)!;
+    const next = new URLSearchParams(params);
+    next.set('colour', id);
+    setParams(next, { replace: true, preventScrollReset: true });
+    if (c.image !== undefined) setImgIndex(c.image);
   };
+
+  const hasColourChoice = product.colours.length > 1;
+  const waMessage = messages.product(product, hasColourChoice ? colour?.name : undefined);
 
   return (
     <>
       <Seo
-        title={title}
-        description={description}
-        path={`/products/${product.slug}`}
-        image={gallery[0]}
-        jsonLd={[productLd, breadcrumb([{ name: 'Home', path: '/' }, { name: 'Products', path: '/products' }, { name: product.name, path: `/products/${product.slug}` }])]}
+        title={`${titleName(product)} in Erode | Zam Zam Pure Water System`}
+        description={`${product.short} ${product.summary}`.slice(0, 158)}
+        path={productPath(product)}
+        image={product.images[0]?.src}
+        jsonLd={[productSchema(product), breadcrumb(crumbs)]}
       />
 
-      <section className="water-bg pt-24 pb-10 sm:pt-28">
+      <section className="water-soft pt-24 pb-12 sm:pt-28">
         <div className="container-royal">
-          <nav aria-label="Breadcrumb" className="mb-5 flex flex-wrap items-center gap-1.5 text-[0.72rem] font-medium text-mist">
-            <Link to="/" className="hover:text-navy">Home</Link>
-            <ChevronRight size={14} />
-            <Link to="/products" className="hover:text-navy">Products</Link>
-            <ChevronRight size={14} />
-            <span className="text-navy">{product.name}</span>
-          </nav>
+          <Breadcrumbs items={crumbs} />
+          <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-2 lg:gap-12">
+            <Gallery product={product} index={imgIndex} onIndex={setImgIndex} />
 
-          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-            {/* Gallery */}
             <div>
-              <div className="relative mx-auto aspect-square max-w-md overflow-hidden rounded-[24px] bg-white shadow-lift">
-                <AnimatePresence mode="wait">
-                  {gallery.length ? (
-                    <motion.img
-                      key={gallery[shot]}
-                      src={gallery[shot]}
-                      alt={`${fullName(product)} water purifier — Zam Zam, Erode`}
-                      className="h-full w-full object-contain"
-                      initial={{ opacity: 0, scale: 1.04 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.5 }}
-                    />
-                  ) : (
-                    <ProductVisual product={product} className="h-full w-full" />
-                  )}
-                </AnimatePresence>
-                {product.badge && (
-                  <span className="absolute top-5 left-5 rounded-full bg-navy px-3.5 py-1.5 text-[0.65rem] font-bold tracking-[0.18em] text-gold uppercase">{product.badge}</span>
-                )}
-              </div>
-              {gallery.length > 1 && (
-                <div className="mx-auto mt-3 grid max-w-md grid-cols-6 gap-2">
-                  {gallery.map((g, i) => (
-                    <button
-                      key={g}
-                      type="button"
-                      onClick={() => setShot(i)}
-                      className={`aspect-square w-full overflow-hidden rounded-xl border-2 bg-white transition ${i === shot ? 'border-gold' : 'border-transparent opacity-70 hover:opacity-100'}`}
-                      aria-label={`View image ${i + 1}`}
-                    >
-                      <img src={g} alt="" className="h-full w-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+              <p className="text-[0.68rem] font-medium tracking-[0.26em] text-gold-deep uppercase">
+                {product.brand}
+                {product.series && ` · ${product.series}`} · {categoryLabel(product.category, lang)}
+              </p>
+              <h1 className="mt-2 text-[2.5rem] sm:text-[3.2rem]">{name}</h1>
+              <p className="mt-1 font-display text-[1.3rem] text-gold-deep italic">{txt.short}</p>
+              <p className="mt-4 text-[0.98rem] text-mist">{txt.summary}</p>
 
-            {/* Details */}
-            <div>
-              <p className="eyebrow">{product.brand}</p>
-              <h1 className="mt-2 text-[2.3rem] leading-[1.05] font-medium sm:text-5xl">{product.name}</h1>
-              {product.series && <p className="mt-2 font-display text-2xl text-gold-deep italic">{product.series}</p>}
-              <p className="mt-3 text-[0.92rem] leading-relaxed text-ink/80">{product.summary}</p>
-
-              <div className="mt-4 flex flex-wrap gap-1.5">
+              <ul className="mt-5 flex flex-wrap gap-2" aria-label={t('pd.technology')}>
                 {product.technology.map((t) => (
-                  <span key={t} className="rounded-full border border-navy/10 bg-white px-3 py-1.5 text-[0.72rem] text-navy">{t}</span>
+                  <li key={t} className="chip">
+                    <Sparkles className="h-3 w-3 text-gold-deep" aria-hidden /> {t}
+                  </li>
                 ))}
-              </div>
+              </ul>
 
-              {product.colours && (
-                <div className="mt-5">
-                  <p className="text-[0.82rem] font-medium text-navy">
-                    Colour: <span className="font-normal text-mist">{product.colours[colour].name}</span>
+              {product.colours.length > 0 && (
+                <div className="mt-6">
+                  <p className="text-[0.78rem] font-medium tracking-wide text-navy">
+                    {hasColourChoice ? t('pd.colour') : t('pd.finish')}: <span className="font-normal text-mist">{colour?.name}</span>
                   </p>
-                  <div className="mt-2 flex gap-2.5">
-                    {product.colours.map((c, i) => (
-                      <button
-                        key={c.name}
-                        type="button"
-                        onClick={() => setColour(i)}
-                        aria-label={c.name}
-                        aria-pressed={i === colour}
-                        className={`h-8 w-8 rounded-full shadow-soft ring-offset-2 ring-offset-pearl transition ${i === colour ? 'ring-2 ring-gold' : 'hover:scale-110'}`}
-                        style={{ background: c.hex }}
-                      />
-                    ))}
+                  <div className="mt-2.5">
+                    {hasColourChoice ? <Swatches colours={product.colours} selected={colour?.id} onSelect={pickColour} size="md" label={`${name} colours`} /> : <Swatches colours={product.colours} size="md" />}
                   </div>
+                  {hasColourChoice && <p className="mt-2 text-[0.74rem] text-mist">{t('pd.colourNote')}</p>}
                 </div>
               )}
 
-              <div className="mt-6 flex flex-col gap-2.5 sm:flex-row">
-                <a
-                  href={productEnquiry({ ...product, series: product.colours ? `${product.series ?? ''} ${product.colours[colour].name}`.trim() : product.series })}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn flex-1 bg-[#25D366] text-white"
-                >
-                  <MessageCircle size={17} /> Get price on WhatsApp
+              <div className="mt-7 flex flex-wrap gap-3">
+                <a href={whatsappLink(waMessage)} target="_blank" rel="noopener noreferrer" className="btn bg-[#1fa855] text-white shadow-soft hover:bg-[#1a9049] hover:shadow-lift">
+                  <WhatsAppIcon /> {t('cta.getPrice')}
                 </a>
-                <a href={telLink} className="btn-royal flex-1"><Phone size={16} /> Call {business.phoneDisplay}</a>
+                <a href={telLink} className="btn-ghost">
+                  <Phone className="h-4 w-4" aria-hidden /> {t('pd.callNumber', { phone: business.phoneDisplay })}
+                </a>
               </div>
-
-              <ul className="mt-5 grid gap-2 border-t border-navy/10 pt-5 text-[0.8rem] text-navy sm:grid-cols-3">
-                <li className="flex items-center gap-2"><Truck size={18} className="text-gold-deep" /> Delivery in Erode</li>
-                <li className="flex items-center gap-2"><Wrench size={18} className="text-gold-deep" /> Expert installation</li>
-                <li className="flex items-center gap-2"><ShieldCheck size={18} className="text-gold-deep" /> Local after-sales</li>
-              </ul>
+              <Link to={bookPath('Expert Installation', name)} className="mt-3 inline-block text-[0.84rem] text-ocean underline-offset-2 hover:underline">
+                {t('pd.installLink')}
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="container-royal grid gap-6 py-9 md:grid-cols-2">
-        <div className="card-royal p-5">
-          <h2 className="text-2xl font-medium">Highlights</h2>
-          <ul className="mt-3 space-y-2 text-[0.88rem]">
-            {product.highlights.map((h) => (
-              <li key={h} className="flex items-start gap-3 text-ink/80">
-                <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-gold/20 text-gold-deep"><Check size={13} strokeWidth={3} /></span>
-                {h}
+      <section className="container-royal grid gap-6 py-12 lg:grid-cols-3">
+        <Reveal className="card-royal p-6">
+          <h2 className="text-[1.6rem]">{t('pd.highlights')}</h2>
+          <ul className="mt-4 space-y-2.5">
+            {txt.highlights.map((h) => (
+              <li key={h} className="flex gap-2.5 text-[0.92rem] text-ink">
+                <Check className="mt-1 h-4 w-4 shrink-0 text-ocean" aria-hidden /> {h}
               </li>
             ))}
           </ul>
-        </div>
-        <div className="card-royal p-5">
-          <h2 className="text-2xl font-medium">Ideal for</h2>
-          <ul className="mt-3 flex flex-wrap gap-2">
-            {product.idealFor.map((h) => (
-              <li key={h} className="rounded-full bg-aqua px-4 py-2 text-sm font-medium text-navy">{h}</li>
+        </Reveal>
+        <Reveal delay={0.05} className="card-royal p-6">
+          <h2 className="text-[1.6rem]">{t('pd.suitable')}</h2>
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {txt.useCases.map((u) => (
+              <li key={u} className="chip !py-1.5 !text-[0.8rem]">
+                {u}
+              </li>
             ))}
           </ul>
-          <p className="mt-4 text-[0.82rem] leading-relaxed text-mist">
-            Detailed specifications, current price and offers vary by model and stock. Message us and we’ll share the latest details — and help you check if it suits your water.
-          </p>
-        </div>
+          <p className="mt-4 text-[0.8rem] text-mist">Suitability depends on your water — we recommend a water check before choosing.</p>
+        </Reveal>
+        <Reveal delay={0.1} className="card-royal p-6">
+          <h2 className="text-[1.6rem]">{t('pd.specs')}</h2>
+          <dl className="mt-3 divide-y divide-ice/50 text-[0.88rem]">
+            {product.specs.map((spec) => {
+              const s = specText(spec, lang);
+              return (
+                <div key={spec.label} className="flex justify-between gap-4 py-2">
+                  <dt className="text-mist">{s.label}</dt>
+                  <dd className={`text-right ${s.value ? 'text-navy' : 'text-mist/80 italic'}`}>{s.value ?? t('pd.enquireDetails')}</dd>
+                </div>
+              );
+            })}
+          </dl>
+          <p className="mt-3 text-[0.72rem] text-mist">{t('pd.source', { source: product.source })}</p>
+        </Reveal>
       </section>
 
-      {related.length > 0 && (
-        <section className="container-royal pb-10">
-          <div className="flex items-end justify-between">
-            <h2 className="text-3xl font-medium">You may also like</h2>
-            <Link to="/products" className="hidden items-center gap-2 text-sm font-semibold text-navy sm:flex"><ArrowLeft size={16} /> All products</Link>
+      {/* Trust-focused enquiry */}
+      <section className="container-royal">
+        <Reveal className="grid items-center gap-6 rounded-[30px] bg-gradient-to-br from-navy to-navy-deep p-6 text-white shadow-lift sm:p-10 lg:grid-cols-[1.2fr_1fr]">
+          <div>
+            <p className="eyebrow text-gold">{t('pd.trust.eyebrow')}</p>
+            <h2 className="mt-2 text-[2rem] text-white sm:text-[2.4rem]">
+              {t('pd.trust.title')} <span className="accent text-gold">{t('pd.trust.accent')}</span>
+            </h2>
+            <ul className="mt-5 grid gap-3 text-[0.9rem] text-white/80 sm:grid-cols-3">
+              <li className="flex gap-2"><ShieldCheck className="h-5 w-5 shrink-0 text-gold" aria-hidden /> {t('pd.trust1')}</li>
+              <li className="flex gap-2"><Sparkles className="h-5 w-5 shrink-0 text-gold" aria-hidden /> {t('pd.trust2')}</li>
+              <li className="flex gap-2"><Wrench className="h-5 w-5 shrink-0 text-gold" aria-hidden /> {t('pd.trust3')}</li>
+            </ul>
           </div>
-          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {related.map((p, i) => <ProductCard key={p.slug} product={p} index={i} />)}
+          <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+            <a href={whatsappLink(waMessage)} target="_blank" rel="noopener noreferrer" className="btn-gold w-full">
+              <WhatsAppIcon /> {t('cta.getPrice')}
+            </a>
+            <a href={telLink} className="btn-light w-full">
+              <Phone className="h-4 w-4" aria-hidden /> {t('cta.callNow')}
+            </a>
           </div>
-        </section>
-      )}
+        </Reveal>
+      </section>
 
-      <CtaBanner />
+      <section className="container-royal py-14" aria-labelledby="related-title">
+        <h2 id="related-title" className="text-[2rem]">
+          {t('pd.related')} <span className="accent">{t('pd.relatedAccent')}</span>
+        </h2>
+        <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {relatedProducts(product).map((p) => (
+            <li key={p.slug}>
+              <ProductCard product={p} />
+            </li>
+          ))}
+        </ul>
+      </section>
     </>
   );
 }

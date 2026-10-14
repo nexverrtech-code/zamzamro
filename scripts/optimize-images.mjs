@@ -1,73 +1,122 @@
-// Converts the raw images in /raw into high-quality WebP assets in /public/images.
-// Quality-first: originals are never downscaled below their native size, small crops are
-// upscaled with Lanczos and lightly sharpened so they stay crisp in cards on retina screens.
+// npm run images — converts the supplied business creatives in assets/raw into optimised WebP files
+// in public/images. Originals are never upscaled for photos; only the tiny emblem crop is enlarged
+// (with Lanczos) so the logo stays crisp on retina screens.
 import sharp from 'sharp';
 import { mkdir } from 'node:fs/promises';
 
-const out = 'public/images';
-await mkdir(out, { recursive: true });
+const RAW = 'assets/raw';
+const OUT = 'public/images';
+await mkdir(OUT, { recursive: true });
 
-const HQ = { quality: 92, effort: 6, smartSubsample: true };
-const webp = (img, file, opts = HQ) => img.webp(opts).toFile(`${out}/${file}.webp`);
+const HQ = { quality: 86, effort: 6, smartSubsample: true };
+const raw = (f) => sharp(`${RAW}/${f}`);
 
-// Full creatives / product photos at native resolution.
-const full = {
-  '1.jpg': 'zamzam-business-card',
-  '2.jpg': 'water-level-controller-and-commercial-ro',
-  '3.jpg': 'aqua-2090-raga-series',
-  '4.jpg': 'lx-one-titanium-gun-metal',
-  '5.jpg': 'water-pia-purifier',
-  '6.jpg': 'automatic-water-level-controller-banner',
-  '7.jpg': 'nile-aqua-jade',
-  '8.jpg': 'water-softener-installation',
+/** Writes `<name>.webp` (≤ maxWidth) and `<name>-sm.webp` (≤ 640px) without upscaling. */
+async function photo(file, name, maxWidth = 1400, { flatten = false, region } = {}) {
+  const base = () => {
+    let img = raw(file);
+    if (region) img = img.extract(region);
+    if (flatten) img = img.flatten({ background: '#ffffff' });
+    return img;
+  };
+  await base().resize({ width: maxWidth, withoutEnlargement: true }).webp(HQ).toFile(`${OUT}/${name}.webp`);
+  await base().resize({ width: 640, withoutEnlargement: true }).webp({ ...HQ, quality: 82 }).toFile(`${OUT}/${name}-sm.webp`);
+}
+
+// ── Product photography & brand creatives (supplied by Zam Zam) ──────────────
+const products = {
+  '3.jpg': 'aqua-2090-raga-collection',
+  '21.png': 'aqua-2090-sky-blue',
+  '19.png': 'aqua-2090-rose-pink',
+  '20.png': 'aqua-2090-mint-green',
   '9.jpg': 'aqua-2090-green',
-  '10.jpg': 'aqua-ultra-all-water-sources',
-  '11.jpg': 'clean-water-hi-flo-metallic-cherry',
-  '12.jpg': 'clean-water-mountain-water-black',
+  '17.png': 'aqua-2090-royal-purple',
+  '18.png': 'aqua-2090-graphite',
+  '4.jpg': 'lx-one-titanium-gun-metal',
+  '5.jpg': 'water-pia-collection',
+  '7.jpg': 'nile-aqua-jade-collection',
   '13.jpg': 'nile-aqua-v5',
+  '10.jpg': 'clean-water-aqua-ultra',
+  '12.jpg': 'clean-water-mountain-water-black',
+  '11.jpg': 'clean-water-hi-flo-metallic-cherry',
   '14.jpg': 'aqua-roma-gold',
+  '8.jpg': 'water-softener-installation',
+  '6.jpg': 'water-level-controller-and-ss-systems',
+  '2.jpg': 'commercial-and-controller-range',
+  '1.jpg': 'zamzam-business-card',
 };
-for (const [src, name] of Object.entries(full)) {
-  await webp(sharp(`raw/${src}`).resize({ width: 1600, withoutEnlargement: true }), name);
+for (const [file, name] of Object.entries(products)) {
+  await photo(file, name, 1400, { flatten: file.endsWith('.png') });
 }
-await webp(sharp('raw/9.jpg').resize({ width: 960, kernel: 'lanczos3' }).sharpen({ sigma: 0.5 }), 'aqua-2090-green-cutout');
 
-// Crops from the banners — upscaled 2× for retina, lightly sharpened.
-const crop = async (src, region, name, scale = 2) => {
-  const img = sharp(`raw/${src}`).extract(region).resize({ width: Math.round(region.width * scale), kernel: 'lanczos3' }).sharpen({ sigma: 0.6 });
-  await webp(img, name);
+// Champagne Raga unit, cropped from the official Raga Series group creative (no upscaling).
+await photo('3.jpg', 'aqua-2090-champagne', 640, { region: { left: 636, top: 392, width: 252, height: 322 } });
+
+// Individual units cropped from the "Pure water in every drop" creative.
+await photo('2.jpg', 'zamzam-ss-standard', 640, { region: { left: 515, top: 390, width: 205, height: 295 } });
+await photo('2.jpg', 'zamzam-ss-hot-normal', 640, { region: { left: 735, top: 390, width: 205, height: 295 } });
+await photo('2.jpg', 'triple-stage-commercial-ro', 640, { region: { left: 960, top: 175, width: 290, height: 520 } });
+await photo('2.jpg', 'automatic-water-level-controller', 640, { region: { left: 0, top: 230, width: 500, height: 470 } });
+
+// ── Second batch of creatives (assets/raw/v2) ───────────────────────────────
+const v2 = {
+  'aqua-era-shapure.png': 'aqua-era-shapure',
+  'lexpure.webp': 'lexpure-ro',
+  'nile-aqua-v5-maroon.webp': 'nile-aqua-v5-maroon',
+  'purosis-puroaqua.webp': 'purosis-puroaqua',
+  'merlin-ispeed.webp': 'merlin-ispeed',
+  'canix-aqua-orca.webp': 'canix-aqua-orca',
+  'clean-water-range.webp': 'clean-water-range',
+  'nile-aqua-innovica-range.webp': 'nile-aqua-innovica-range',
+  'nile-aqua-innovica-black.webp': 'nile-aqua-innovica-black',
+  'nile-aqua-2090-next.webp': 'nile-aqua-2090-next',
+  'aqua-2090-raga-green-kitchen.webp': 'aqua-2090-raga-green-kitchen',
+  'zamzam-business-card-tamil.webp': 'zamzam-business-card-tamil',
 };
-await crop('1.jpg', { left: 265, top: 40, width: 750, height: 450 }, 'zamzam-logo', 1.5);
-await crop('2.jpg', { left: 515, top: 390, width: 205, height: 295 }, 'ss-standard-system');
-await crop('2.jpg', { left: 735, top: 390, width: 205, height: 295 }, 'ss-hot-normal-system');
-await crop('2.jpg', { left: 960, top: 175, width: 290, height: 520 }, 'triple-stage-commercial-ro');
-await crop('2.jpg', { left: 0, top: 230, width: 500, height: 470 }, 'water-level-controller');
+for (const [file, name] of Object.entries(v2)) await photo(`v2/${file}`, name, 1400, { flatten: file.endsWith('.png') });
 
-// Brand emblem: original crop + transparent navy / white variants at 3× for crisp retina logos.
-await sharp('raw/1.jpg').extract({ left: 570, top: 40, width: 140, height: 195 }).png().toFile(`${out}/zamzam-emblem.png`);
-await sharp('raw/1.jpg').extract({ left: 570, top: 40, width: 140, height: 195 }).resize(64, 89).png().toFile('public/favicon.png');
-async function tintedEmblem(rgb, file) {
-  const src = sharp('raw/1.jpg').extract({ left: 570, top: 40, width: 140, height: 195 }).resize({ width: 420, kernel: 'lanczos3' });
-  const alpha = await src.clone().greyscale().negate().linear(1.6, -40).toColourspace('b-w').raw().toBuffer();
-  const { width, height } = await src.clone().raw().toBuffer({ resolveWithObject: true }).then((r) => r.info);
-  await sharp({ create: { width, height, channels: 3, background: rgb } })
-    .joinChannel(alpha, { raw: { width, height, channels: 1 } })
-    .png({ compressionLevel: 9 })
-    .toFile(`${out}/${file}`);
-}
-await tintedEmblem({ r: 32, g: 38, b: 87 }, 'emblem-navy.png');
-await tintedEmblem({ r: 255, g: 255, b: 255 }, 'emblem-white.png');
+// The stainless-steel creative shows two products — split into one photo each.
+await photo('v2/zamzam-ss-systems-pair.webp', 'zamzam-ss-standard-photo', 640, { region: { left: 10, top: 236, width: 425, height: 770 } });
+await photo('v2/zamzam-ss-systems-pair.webp', 'zamzam-ss-hot-normal-photo', 640, { region: { left: 448, top: 236, width: 440, height: 770 } });
 
-// Aqua 2090 product shots (studio photos) at native size.
-const aqua = { '17.png': 'aqua-2090-purple', '18.png': 'aqua-2090-graphite', '19.png': 'aqua-2090-pink', '20.png': 'aqua-2090-mint', '21.png': 'aqua-2090-sky' };
-for (const [src, name] of Object.entries(aqua)) {
-  await webp(sharp(`raw/${src}`).flatten({ background: '#ffffff' }), name);
+// ── Real water photography ───────────────────────────────────────────────────
+const water = { '25.jpg': 'water-underwater-rays', '26.jpg': 'water-turquoise-surface', '15.jpg': 'water-underwater-light', '16.jpg': 'water-sea-dusk' };
+for (const [file, name] of Object.entries(water)) {
+  await raw(file).resize({ width: 1920, withoutEnlargement: true }).webp({ quality: 80, effort: 6 }).toFile(`${OUT}/${name}.webp`);
+  await raw(file).resize({ width: 960 }).webp({ quality: 76, effort: 6 }).toFile(`${OUT}/${name}-sm.webp`);
 }
 
-// Real water photography — full resolution backgrounds + a lighter version for small uses.
-for (const [src, name] of [['25.jpg', 'water-sunburst'], ['26.jpg', 'water-turquoise']]) {
-  await webp(sharp(`raw/${src}`), name, { quality: 86, effort: 6, smartSubsample: true });
-  await webp(sharp(`raw/${src}`).resize({ width: 1200 }), `${name}-sm`, { quality: 84, effort: 6 });
+// ── Brand emblem: transparent navy / white variants + icons ──────────────────
+const EMBLEM = { left: 570, top: 40, width: 140, height: 195 };
+async function emblem(rgb, width) {
+  const src = raw('1.jpg').extract(EMBLEM).resize({ width, kernel: 'lanczos3' });
+  const { data: alpha, info } = await src.clone().greyscale().negate().linear(1.7, -45).toColourspace('b-w').raw().toBuffer({ resolveWithObject: true });
+  return sharp({ create: { width: info.width, height: info.height, channels: 3, background: rgb } })
+    .joinChannel(alpha, { raw: { width: info.width, height: info.height, channels: 1 } })
+    .png({ compressionLevel: 9 });
 }
+await (await emblem({ r: 32, g: 38, b: 87 }, 420)).toFile(`${OUT}/emblem-navy.png`);
+await (await emblem({ r: 255, g: 255, b: 255 }, 420)).toFile(`${OUT}/emblem-white.png`);
 
-console.log('Images optimised (high quality).');
+async function icon(size, file, pad = 0.16) {
+  const inner = Math.round(size * (1 - pad * 2));
+  const mark = await (await emblem({ r: 32, g: 38, b: 87 }, 420)).toBuffer();
+  const fitted = await sharp(mark).resize({ height: inner, width: inner, fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
+  await sharp({ create: { width: size, height: size, channels: 4, background: { r: 250, g: 249, b: 246, alpha: 1 } } })
+    .composite([{ input: fitted, gravity: 'center' }])
+    .png()
+    .toFile(file);
+}
+await icon(64, 'public/favicon.png', 0.06);
+await icon(180, 'public/apple-touch-icon.png');
+await icon(192, `${OUT}/icon-192.png`);
+await icon(512, `${OUT}/icon-512.png`);
+
+// ── Open Graph image (1200×630): the official business card on pearl ─────────
+const card = await raw('1.jpg').resize({ width: 1060 }).toBuffer();
+await sharp({ create: { width: 1200, height: 630, channels: 3, background: '#FAF9F6' } })
+  .composite([{ input: card, gravity: 'center' }])
+  .jpeg({ quality: 86, mozjpeg: true })
+  .toFile(`${OUT}/og-zamzam.jpg`);
+
+console.log('✓ Images optimised into public/images');
